@@ -62,22 +62,44 @@ async def get_suggested_users(user_id: str, limit: int = 10):
                 detail="User not found"
             )
         
-        # Get users with similar interests
-        similar_users = await db["users"].find(
-            {
-                "_id": {"$ne": ObjectId(user_id)},
-                "interests": {"$in": user.get("interests", [])},
-            }
-        ).limit(limit).to_list(None)
+        # First, try to get users with similar interests
+        user_interests = user.get("interests", [])
+        suggestions = []
         
-        # Format response
-        suggestions = [{
-            "id": str(u["_id"]),
-            "username": u.get("username"),
-            "profile_picture": u.get("profile_picture"),
-            "bio": u.get("bio"),
-            "mutual_interests": list(set(u.get("interests", [])) & set(user.get("interests", [])))
-        } for u in similar_users]
+        if user_interests:
+            similar_users = await db["users"].find(
+                {
+                    "_id": {"$ne": ObjectId(user_id)},
+                    "interests": {"$in": user_interests},
+                }
+            ).limit(limit).to_list(None)
+            
+            suggestions = [{
+                "id": str(u["_id"]),
+                "username": u.get("username"),
+                "profile_picture": u.get("profile_picture"),
+                "bio": u.get("bio"),
+                "interests": u.get("interests", [])
+            } for u in similar_users]
+        
+        # If not enough suggestions, add more random users
+        if len(suggestions) < limit:
+            remaining_limit = limit - len(suggestions)
+            other_users = await db["users"].find(
+                {"_id": {"$ne": ObjectId(user_id)}}
+            ).skip(0).limit(remaining_limit).to_list(None)
+            
+            existing_ids = {s["id"] for s in suggestions}
+            for u in other_users:
+                u_id = str(u["_id"])
+                if u_id not in existing_ids:
+                    suggestions.append({
+                        "id": u_id,
+                        "username": u.get("username"),
+                        "profile_picture": u.get("profile_picture"),
+                        "bio": u.get("bio"),
+                        "interests": u.get("interests", [])
+                    })
         
         return suggestions
     except Exception as e:

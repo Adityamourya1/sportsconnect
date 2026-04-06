@@ -12,6 +12,7 @@ const MessagesPage = () => {
   const [messageText, setMessageText] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [showNewConversation, setShowNewConversation] = useState(false)
+  const [loadingUsers, setLoadingUsers] = useState(false)
   const userId = localStorage.getItem('user_id')
 
   useEffect(() => {
@@ -21,6 +22,7 @@ const MessagesPage = () => {
 
   useEffect(() => {
     if (selectedChat || selectedUser) {
+      console.log('Loading messages for:', { selectedChat, selectedUser })
       loadMessages()
     }
   }, [selectedChat, selectedUser])
@@ -39,10 +41,18 @@ const MessagesPage = () => {
 
   const loadSuggestedUsers = async () => {
     try {
+      setLoadingUsers(true)
       const response = await exploreService.getSuggestedUsers(userId)
+      console.log('Suggested users response:', response.data)
       setSuggestedUsers(response.data || [])
+      if (!response.data || response.data.length === 0) {
+        console.warn('No suggested users returned from API')
+      }
     } catch (error) {
-      console.error('Failed to load suggested users')
+      console.error('Failed to load suggested users:', error)
+      toast.error('Failed to load users list')
+    } finally {
+      setLoadingUsers(false)
     }
   }
 
@@ -110,9 +120,11 @@ const MessagesPage = () => {
   }
 
   const startNewConversation = (user) => {
+    console.log('Starting conversation with:', user)
     setSelectedUser(user)
     setSelectedChat(null)
     setShowNewConversation(false)
+    setMessages([]) // Clear old messages
   }
 
   if (isLoading) {
@@ -130,47 +142,66 @@ const MessagesPage = () => {
       {/* Conversations List */}
       <div className="w-80 bg-white shadow-lg overflow-y-auto border-r">
         <div className="sticky top-0 bg-white p-4 border-b">
-          <div className="flex items-center justify-between space-x-2 text-2xl font-bold mb-4">
+          <div className="flex items-center justify-between text-2xl font-bold mb-4">
             <div className="flex items-center space-x-2">
               <FaEnvelope className="text-green-500" />
               <span>Messages</span>
             </div>
             <button
               onClick={() => setShowNewConversation(!showNewConversation)}
-              className="text-green-500 hover:bg-green-50 p-2 rounded-lg transition"
-              title="New conversation"
+              className="flex items-center gap-2 bg-green-500 text-white hover:bg-green-600 px-3 py-1.5 rounded-lg transition text-sm font-semibold"
+              title="Start a new message"
             >
-              <FaPlus size={20} />
+              <FaPlus size={16} />
+              New
             </button>
           </div>
         </div>
 
         {showNewConversation && (
           <div className="p-4 border-b bg-blue-50">
-            <p className="text-sm font-semibold mb-2 text-gray-700">Start a conversation</p>
-            <div className="space-y-2 max-h-40 overflow-y-auto">
-              {suggestedUsers.map((user) => (
-                <button
-                  key={user.id}
-                  onClick={() => startNewConversation(user)}
-                  className="w-full text-left p-2 hover:bg-blue-100 rounded-lg transition text-sm"
-                >
-                  <p className="font-semibold">{user.username}</p>
-                  <p className="text-xs text-gray-600 truncate">{user.bio}</p>
-                </button>
-              ))}
-            </div>
+            <p className="text-sm font-semibold mb-3 text-gray-700">👥 Select user to message</p>
+            {loadingUsers ? (
+              <p className="text-xs text-gray-500 text-center py-4">Loading users...</p>
+            ) : suggestedUsers.length === 0 ? (
+              <div className="text-xs text-center py-6 text-gray-500">
+                <p>😅 No users available</p>
+                <p className="mt-2 text-gray-400">Go to Explore to find and follow users first</p>
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-40 overflow-y-auto">
+                {suggestedUsers.map((user) => (
+                  <button
+                    key={user.id}
+                    onClick={() => startNewConversation(user)}
+                    className="w-full text-left p-3 hover:bg-blue-100 bg-white rounded-lg transition text-sm border border-gray-200"
+                  >
+                    <img 
+                      src={user.profile_picture || 'https://via.placeholder.com/30'} 
+                      alt={user.username}
+                      className="w-8 h-8 rounded-full inline-block mr-2"
+                    />
+                    <div className="inline-block">
+                      <p className="font-semibold text-gray-800">{user.username}</p>
+                      <p className="text-xs text-gray-600 truncate">{user.bio || 'No bio'}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
         {conversations.length === 0 && !showNewConversation && (
           <div className="p-4 text-center text-gray-600">
-            <p>No conversations yet</p>
+            <div className="text-4xl mb-2">💬</div>
+            <p className="font-semibold mb-1">No messages yet</p>
+            <p className="text-sm mb-3">Start a new conversation</p>
             <button
               onClick={() => setShowNewConversation(true)}
-              className="mt-2 text-green-500 hover:text-green-600 text-sm"
+              className="w-full bg-green-500 text-white hover:bg-green-600 py-2 px-4 rounded-lg text-sm font-semibold transition"
             >
-              Start a conversation
+              + New Message
             </button>
           </div>
         )}
@@ -216,29 +247,56 @@ const MessagesPage = () => {
       <div className="flex-1 flex flex-col">
         {activeChat ? (
           <>
+            {/* Chat Header */}
+            <div className="bg-white border-b p-4 flex items-center justify-between">
+              <div>
+                <p className="font-bold text-gray-800">
+                  {selectedUser ? selectedUser.username : 'Chat'}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {selectedUser && selectedUser.bio}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setSelectedUser(null)
+                  setSelectedChat(null)
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex ${
-                    msg.sender_id === userId ? 'justify-end' : 'justify-start'
-                  }`}
-                >
+              {messages.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">
+                  <p>No messages yet. Start the conversation!</p>
+                </div>
+              ) : (
+                messages.map((msg) => (
                   <div
-                    className={`max-w-xs px-4 py-2 rounded-lg ${
-                      msg.sender_id === userId
-                        ? 'bg-green-500 text-white'
-                        : 'bg-gray-300 text-gray-800'
+                    key={msg.id}
+                    className={`flex ${
+                      msg.sender_id === userId ? 'justify-end' : 'justify-start'
                     }`}
                   >
-                    <p>{msg.text}</p>
-                    <p className="text-xs opacity-70 mt-1">
-                      {new Date(msg.created_at).toLocaleTimeString()}
-                    </p>
+                    <div
+                      className={`max-w-xs px-4 py-2 rounded-lg ${
+                        msg.sender_id === userId
+                          ? 'bg-green-500 text-white'
+                          : 'bg-gray-300 text-gray-800'
+                      }`}
+                    >
+                      <p>{msg.text}</p>
+                      <p className="text-xs opacity-70 mt-1">
+                        {new Date(msg.created_at).toLocaleTimeString()}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
             {/* Message Input */}
@@ -253,10 +311,12 @@ const MessagesPage = () => {
                   onChange={(e) => setMessageText(e.target.value)}
                   placeholder="Type a message..."
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-green-500"
+                  disabled={!selectedUser && !selectedChat}
                 />
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                  className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition disabled:opacity-50"
+                  disabled={!selectedUser && !selectedChat}
                 >
                   <FaPaperPlane />
                 </button>
@@ -264,8 +324,19 @@ const MessagesPage = () => {
             </form>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-600 bg-white">
-            <p>Select a conversation or start a new one</p>
+          <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-green-50 to-gray-100">
+            <div className="text-center max-w-md">
+              <div className="text-6xl mb-4">✨</div>
+              <p className="text-3xl font-bold text-gray-800 mb-3">Ready to chat?</p>
+              <p className="text-gray-600 mb-2">👇 Click the <span className="font-bold bg-green-100 px-2 py-1 rounded">+ New</span> button to start messaging!</p>
+              <p className="text-sm text-gray-500 mb-6">Or select a conversation from your list on the left</p>
+              <button
+                onClick={() => setShowNewConversation(true)}
+                className="bg-green-500 text-white px-8 py-3 rounded-lg hover:bg-green-600 transition font-semibold text-lg"
+              >
+                📨 Start Messaging
+              </button>
+            </div>
           </div>
         )}
       </div>
