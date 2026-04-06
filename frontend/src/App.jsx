@@ -12,6 +12,7 @@ import {
   SignupPage,
   NotificationsPage,
   MessagesPage,
+  StoriesPage,
   SettingsPage,
 } from './pages'
 import { Sidebar, Navbar } from './components'
@@ -108,6 +109,15 @@ function App() {
           element={
             <ProtectedRoute>
               <MessagesPage />
+            </ProtectedRoute>
+          }
+        />
+        
+        <Route
+          path="/stories"
+          element={
+            <ProtectedRoute>
+              <StoriesPage />
             </ProtectedRoute>
           }
         />

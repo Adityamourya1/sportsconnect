@@ -9,6 +9,7 @@ from .messages import router as messages_router
 from .ai import router as ai_router
 from .upload import router as upload_router
 from .websocket import router as websocket_router
+from .stories import stories_router
 
 __all__ = [
     "auth_router",
@@ -22,4 +23,5 @@ __all__ = [
     "ai_router",
     "upload_router",
     "websocket_router",
+    "stories_router",
 ]

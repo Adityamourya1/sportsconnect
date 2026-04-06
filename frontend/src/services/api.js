@@ -114,3 +114,17 @@ export const uploadService = {
     })
   }
 }
+
+// Stories API calls
+export const storyService = {
+  createStory: (userId, data) =>
+    apiClient.post(`/stories/${userId}/create`, data),
+  getStoriesFeed: (userId) =>
+    apiClient.get(`/stories/${userId}/feed`),
+  getUserStories: (userId) =>
+    apiClient.get(`/stories/user/${userId}`),
+  viewStory: (storyId, viewerId) =>
+    apiClient.post(`/stories/${storyId}/view`, { viewer_id: viewerId }),
+  deleteStory: (storyId, userId) =>
+    apiClient.delete(`/stories/${storyId}`, { params: { user_id: userId } }),
+}

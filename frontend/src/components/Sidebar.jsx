@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { FaHome, FaCompass, FaTrophy, FaUser, FaBell, FaEnvelope, FaCog } from 'react-icons/fa'
+import { FaHome, FaCompass, FaTrophy, FaUser, FaBell, FaEnvelope, FaImage, FaCog } from 'react-icons/fa'
 
 const Sidebar = () => {
   return (
@@ -47,6 +47,14 @@ const Sidebar = () => {
           >
             <FaEnvelope size={24} />
             <span className="text-lg">Messages</span>
+          </Link>
+
+          <Link
+            to="/stories"
+            className="flex items-center space-x-4 text-white hover:bg-green-700 px-4 py-3 rounded-lg transition"
+          >
+            <FaImage size={24} />
+            <span className="text-lg">Stories</span>
           </Link>
 
           <Link

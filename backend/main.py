@@ -9,7 +9,7 @@ from app.services.cache import RedisCache
 from app.routes import (
     auth_router, users_router, posts_router, feed_router,
     explore_router, leagues_router, notifications_router,
-    messages_router, ai_router, upload_router, websocket_router
+    messages_router, ai_router, upload_router, websocket_router, stories_router
 )
 
 # Configure logging
@@ -83,6 +83,7 @@ app.include_router(messages_router)
 app.include_router(ai_router)
 app.include_router(upload_router)
 app.include_router(websocket_router)
+app.include_router(stories_router)
 
 # Error handlers
 @app.exception_handler(Exception)

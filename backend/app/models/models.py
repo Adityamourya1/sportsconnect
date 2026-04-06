@@ -137,3 +137,21 @@ class Recommendation(BaseModel):
                 "score": 0.85,
             }
         }
+
+class Story(BaseModel):
+    user_id: str
+    image_url: str
+    caption: Optional[str] = None
+    viewed_by: List[str] = []  # User IDs who have viewed this story
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    expires_at: datetime  # Stories expire after 24 hours
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "user_id": "user_123",
+                "image_url": "https://example.com/story.jpg",
+                "caption": "Enjoying the match! 🏏",
+                "viewed_by": ["user_456", "user_789"],
+            }
+        }
