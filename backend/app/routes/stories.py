@@ -10,9 +10,9 @@ from app.models.models import Story
 logger = logging.getLogger(__name__)
 stories_router = APIRouter(prefix="/api/stories", tags=["stories"])
 
-async def get_db():
-    """Dependency to get database"""
-    return await get_database()
+def get_db():
+    """Dependency to get database - returns Motor database object"""
+    return get_database()
 
 @stories_router.post("/{user_id}/create")
 async def create_story(user_id: str, story: Story, db = Depends(get_db)):

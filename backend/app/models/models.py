@@ -15,6 +15,8 @@ class User(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     is_verified: bool = False
     is_active: bool = True
+    role: Optional[str] = None  # "scout", "league_owner", or None for regular player
+    owned_leagues: List[str] = []  # League IDs owned by this user
     
     class Config:
         json_schema_extra = {
@@ -51,13 +53,31 @@ class Post(BaseModel):
             }
         }
 
+class LeagueApplication(BaseModel):
+    user_id: str  # Player ID
+    league_id: str
+    applied_at: datetime = Field(default_factory=datetime.utcnow)
+    status: str = "pending"  # "pending", "accepted", "rejected"
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "user_id": "player_123",
+                "league_id": "league_456",
+                "status": "pending",
+            }
+        }
+
 class League(BaseModel):
     name: str  # e.g., "IPL", "Premier League"
     description: str
     sport: str  # e.g., "cricket", "football"
+    owner_id: str  # Scout/League Owner ID
     logo_url: Optional[str] = None
     followers: List[str] = []  # User IDs
     posts: List[str] = []  # Post IDs
+    players: List[str] = []  # Accepted player IDs
+    applications: List[dict] = []  # List of {"user_id": str, "applied_at": datetime, "status": str}
     created_at: datetime = Field(default_factory=datetime.utcnow)
     
     class Config:

@@ -1,6 +1,7 @@
 export { default as HomePage } from './HomePage'
 export { default as ExplorePage } from './ExplorePage'
 export { default as LeaguesPage } from './LeaguesPage'
+export { default as LeaguesManagementPage } from './LeaguesManagementPage'
 export { default as ProfilePage } from './ProfilePage'
 export { default as UserProfilePage } from './UserProfilePage'
 export { default as LoginPage } from './LoginPage'

@@ -128,3 +128,27 @@ export const storyService = {
   deleteStory: (storyId, userId) =>
     apiClient.delete(`/stories/${storyId}`, { params: { user_id: userId } }),
 }
+
+// League Management API calls
+export const leagueManagementService = {
+  setUserRole: (userId, role) =>
+    apiClient.post(`/leagues-management/${userId}/set-role/${role}`),
+  createLeague: (userId, data) =>
+    apiClient.post(`/leagues-management/${userId}/create-league`, data),
+  applyToLeague: (userId, leagueId) =>
+    apiClient.post(`/leagues-management/${userId}/apply-league/${leagueId}`),
+  getLeagueApplications: (userId, leagueId) =>
+    apiClient.get(`/leagues-management/${userId}/league/${leagueId}/applications`),
+  acceptApplication: (userId, leagueId, playerId) =>
+    apiClient.post(`/leagues-management/${userId}/league/${leagueId}/application/${playerId}/accept`),
+  rejectApplication: (userId, leagueId, playerId) =>
+    apiClient.post(`/leagues-management/${userId}/league/${leagueId}/application/${playerId}/reject`),
+  getOwnedLeagues: (userId) =>
+    apiClient.get(`/leagues-management/${userId}/owned-leagues`),
+  getMyLeagueApplications: (userId) =>
+    apiClient.get(`/leagues-management/${userId}/my-league-applications`),
+  getAvailableLeagues: () =>
+    apiClient.get('/leagues-management/available-leagues'),
+  deleteLeague: (userId, leagueId) =>
+    apiClient.delete(`/leagues-management/${userId}/league/${leagueId}`),
+}

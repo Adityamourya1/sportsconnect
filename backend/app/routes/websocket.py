@@ -42,7 +42,8 @@ async def websocket_notifications(websocket: WebSocket, user_id: str):
                 pass
     
     except WebSocketDisconnect:
-        del active_connections[user_id]
+        if user_id in active_connections:
+            del active_connections[user_id]
         logger.info(f"✓ User {user_id} disconnected from notifications")
     except Exception as e:
         logger.error(f"WebSocket error for user {user_id}: {e}")

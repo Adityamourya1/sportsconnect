@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react'
-import { userService, postService } from '../services'
+import { userService, postService, leagueManagementService } from '../services'
 import { PostCard, EditProfileModal } from '../components'
-import { FaEdit } from 'react-icons/fa'
+import { FaEdit, FaTrophy } from 'react-icons/fa'
+import toast from 'react-hot-toast'
 
 const ProfilePage = () => {
   const [profile, setProfile] = useState(null)
   const [posts, setPosts] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [selectedRole, setSelectedRole] = useState(null)
+  const [isSettingRole, setIsSettingRole] = useState(false)
   const userId = localStorage.getItem('user_id')
 
   useEffect(() => {
@@ -19,6 +22,7 @@ const ProfilePage = () => {
       setIsLoading(true)
       const profileRes = await userService.getProfile(userId)
       setProfile(profileRes.data)
+      setSelectedRole(profileRes.data.role || null)
 
       const postsRes = await postService.getUserPosts(userId)
       setPosts(postsRes.data)
@@ -26,6 +30,23 @@ const ProfilePage = () => {
       console.error('Failed to load profile:', error)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleRoleChange = async (role) => {
+    try {
+      setIsSettingRole(true)
+      await leagueManagementService.setUserRole(userId, role)
+      setSelectedRole(role)
+      toast.success(`Role set to ${role}! 🎉 Go to Leagues to create leagues!`, {
+        duration: 4000,
+      })
+      loadProfile()
+    } catch (error) {
+      toast.error('Failed to set role')
+      console.error(error)
+    } finally {
+      setIsSettingRole(false)
     }
   }
 
@@ -100,6 +121,55 @@ const ProfilePage = () => {
             </div>
           </div>
         )}
+
+        {/* Role Selection */}
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+          <p className="font-semibold mb-3 flex items-center gap-2">
+            <FaTrophy className="text-yellow-500" />
+            Select Your Role
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => handleRoleChange('scout')}
+              disabled={isSettingRole}
+              className={`px-4 py-2 rounded-lg font-medium transition ${
+                selectedRole === 'scout'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-white text-blue-500 border border-blue-500 hover:bg-blue-50'
+              } disabled:opacity-50`}
+            >
+              Scout 🔍
+            </button>
+            <button
+              onClick={() => handleRoleChange('league_owner')}
+              disabled={isSettingRole}
+              className={`px-4 py-2 rounded-lg font-medium transition ${
+                selectedRole === 'league_owner'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-white text-blue-500 border border-blue-500 hover:bg-blue-50'
+              } disabled:opacity-50`}
+            >
+              League Owner 👑
+            </button>
+            <button
+              onClick={() => handleRoleChange('regular_player')}
+              disabled={isSettingRole}
+              className={`px-4 py-2 rounded-lg font-medium transition ${
+                selectedRole === 'regular_player'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-white text-blue-500 border border-blue-500 hover:bg-blue-50'
+              } disabled:opacity-50`}
+            >
+              Regular Player ⚽
+            </button>
+          </div>
+          <p className="text-sm text-gray-600 mt-2">
+            {selectedRole === 'scout' && 'You can now participate and explore leagues!'}
+            {selectedRole === 'league_owner' && 'You can now create leagues and manage players!'}
+            {selectedRole === 'regular_player' && 'You can browse and apply to leagues.'}
+            {!selectedRole && 'Select a role to get started.'}
+          </p>
+        </div>
       </div>
 
       {/* User Posts */}

@@ -8,7 +8,7 @@ from app.db import connect_to_mongo, close_mongo_connection
 from app.services.cache import RedisCache
 from app.routes import (
     auth_router, users_router, posts_router, feed_router,
-    explore_router, leagues_router, notifications_router,
+    explore_router, leagues_router, league_router, notifications_router,
     messages_router, ai_router, upload_router, websocket_router, stories_router
 )
 
@@ -78,6 +78,7 @@ app.include_router(posts_router)
 app.include_router(feed_router)
 app.include_router(explore_router)
 app.include_router(leagues_router)
+app.include_router(league_router)
 app.include_router(notifications_router)
 app.include_router(messages_router)
 app.include_router(ai_router)

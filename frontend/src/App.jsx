@@ -6,6 +6,7 @@ import {
   HomePage,
   ExplorePage,
   LeaguesPage,
+  LeaguesManagementPage,
   ProfilePage,
   UserProfilePage,
   LoginPage,
@@ -73,6 +74,15 @@ function App() {
           element={
             <ProtectedRoute>
               <LeaguesPage />
+            </ProtectedRoute>
+          }
+        />
+        
+        <Route
+          path="/leagues-management"
+          element={
+            <ProtectedRoute>
+              <LeaguesManagementPage />
             </ProtectedRoute>
           }
         />

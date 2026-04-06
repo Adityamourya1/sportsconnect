@@ -32,6 +32,7 @@ async def get_user_profile(user_id: str):
             followers_count=len(user.get("followers", [])),
             following_count=len(user.get("following", [])),
             posts_count=posts_count,
+            role=user.get("role"),
             created_at=user.get("created_at")
         )
     except Exception as e:
@@ -80,6 +81,7 @@ async def update_user_profile(user_id: str, request: UpdateProfileRequest):
             followers_count=len(result.get("followers", [])),
             following_count=len(result.get("following", [])),
             posts_count=posts_count,
+            role=result.get("role"),
             created_at=result.get("created_at")
         )
     except Exception as e:

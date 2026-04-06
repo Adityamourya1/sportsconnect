@@ -48,6 +48,7 @@ class UserProfile(BaseModel):
     followers_count: int = 0
     following_count: int = 0
     posts_count: int = 0
+    role: Optional[str] = None
     created_at: datetime
     
     class Config:
