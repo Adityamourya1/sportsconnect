@@ -42,8 +42,38 @@ const SettingsPage = () => {
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
     localStorage.removeItem('user_id')
-    toast.success('Logged out successfully!')
+    toast.success('Logged out successfully')
     navigate('/login')
+  }
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      'Are you absolutely sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.'
+    )
+
+    if (!confirmed) return
+
+    const doubleConfirmed = window.confirm(
+      'This is your final warning. Click OK to permanently delete your account and all your data.'
+    )
+
+    if (!doubleConfirmed) return
+
+    try {
+      setIsLoading(true)
+      const userId = localStorage.getItem('user_id')
+      await userService.deleteAccount(userId)
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
+      localStorage.removeItem('user_id')
+      toast.success('Account deleted successfully')
+      navigate('/login')
+    } catch (error) {
+      toast.error('Failed to delete account')
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -137,8 +167,12 @@ const SettingsPage = () => {
           Logout
         </button>
 
-        <button className="w-full mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold transition">
-          Delete Account
+        <button
+          onClick={handleDeleteAccount}
+          disabled={isLoading}
+          className="w-full mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 hover:shadow-lg font-semibold transition disabled:opacity-50"
+        >
+          {isLoading ? 'Deleting...' : 'Delete Account'}
         </button>
       </div>
     </div>

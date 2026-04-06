@@ -19,6 +19,7 @@ export const userService = {
     apiClient.post(`/users/${userId}/unfollow/${targetUserId}`),
   getFollowers: (userId) => apiClient.get(`/users/${userId}/followers`),
   getFollowing: (userId) => apiClient.get(`/users/${userId}/following`),
+  deleteAccount: (userId) => apiClient.delete(`/users/${userId}`),
 }
 
 // Posts API calls

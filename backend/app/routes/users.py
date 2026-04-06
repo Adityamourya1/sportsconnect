@@ -203,3 +203,72 @@ async def get_following(user_id: str, skip: int = 0, limit: int = 20):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
+
+@router.delete("/{user_id}")
+async def delete_user_account(user_id: str):
+    """Delete user account and all associated data"""
+    db = get_database()
+    
+    try:
+        user_obj_id = ObjectId(user_id)
+        
+        # Check if user exists
+        user = await db["users"].find_one({"_id": user_obj_id})
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        
+        # Delete user's posts
+        await db["posts"].delete_many({"user_id": user_id})
+        
+        # Delete user's leagues
+        await db["leagues"].delete_many({"owner_id": user_id})
+        
+        # Remove user from other users' followers/following lists
+        await db["users"].update_many(
+            {"followers": user_id},
+            {"$pull": {"followers": user_id}}
+        )
+        await db["users"].update_many(
+            {"following": user_id},
+            {"$pull": {"following": user_id}}
+        )
+        
+        # Delete user messages
+        await db["messages"].delete_many(
+            {"$or": [{"sender_id": user_id}, {"recipient_id": user_id}]}
+        )
+        
+        # Delete user conversations
+        await db["conversations"].delete_many(
+            {"$or": [{"user_1": user_id}, {"user_2": user_id}]}
+        )
+        
+        # Delete user notifications
+        await db["notifications"].delete_many({"user_id": user_id})
+        
+        # Delete user from league applications
+        await db["leagues"].update_many(
+            {"applications": {"$elemMatch": {"player_id": user_id}}},
+            {"$pull": {"applications": {"player_id": user_id}}}
+        )
+        
+        # Delete user from league members
+        await db["leagues"].update_many(
+            {"members": user_id},
+            {"$pull": {"members": user_id}}
+        )
+        
+        # Delete user document
+        await db["users"].delete_one({"_id": user_obj_id})
+        
+        return {"message": "User account and all associated data deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
