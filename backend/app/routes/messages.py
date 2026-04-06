@@ -41,31 +41,6 @@ async def send_message(request: SendMessageRequest):
             detail=str(e)
         )
 
-@router.get("/{chat_id}")
-async def get_chat_messages(chat_id: str, skip: int = 0, limit: int = 50):
-    """Get messages from a chat"""
-    db = get_database()
-    
-    try:
-        messages = await db["messages"].find(
-            {"chat_id": chat_id}
-        ).sort("created_at", 1).skip(skip).limit(limit).to_list(None)
-        
-        return [{
-            "id": str(msg["_id"]),
-            "sender_id": msg.get("sender_id"),
-            "receiver_id": msg.get("receiver_id"),
-            "text": msg.get("text"),
-            "image_url": msg.get("image_url"),
-            "is_read": msg.get("is_read", False),
-            "created_at": msg.get("created_at"),
-        } for msg in messages]
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
-
 @router.get("/{user_id}/conversations")
 async def get_conversations(user_id: str):
     """Get all conversations for a user"""
@@ -94,14 +69,51 @@ async def get_conversations(user_id: str):
         # Fetch user info for each conversation
         for chat_id, convo in conversations.items():
             try:
-                user_doc = await db["users"].find_one({"_id": ObjectId(convo["other_user_id"])})
+                other_user_id = convo["other_user_id"]
+                # Try to find user by ObjectId
+                try:
+                    user_doc = await db["users"].find_one({"_id": ObjectId(other_user_id)})
+                except:
+                    # If not a valid ObjectId, try as string id
+                    user_doc = await db["users"].find_one({"_id": other_user_id})
+                
                 if user_doc:
                     convo["other_user_username"] = user_doc.get("username", "Unknown")
                     convo["other_user_profile_picture"] = user_doc.get("profile_picture")
-            except:
-                pass
+                else:
+                    convo["other_user_username"] = "Unknown User"
+                    convo["other_user_profile_picture"] = None
+            except Exception as e:
+                print(f"Error fetching user info for {convo['other_user_id']}: {e}")
+                convo["other_user_username"] = "Unknown User"
+                convo["other_user_profile_picture"] = None
         
         return list(conversations.values())
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+@router.get("/{chat_id}")
+async def get_chat_messages(chat_id: str, skip: int = 0, limit: int = 50):
+    """Get messages from a chat"""
+    db = get_database()
+    
+    try:
+        messages = await db["messages"].find(
+            {"chat_id": chat_id}
+        ).sort("created_at", 1).skip(skip).limit(limit).to_list(None)
+        
+        return [{
+            "id": str(msg["_id"]),
+            "sender_id": msg.get("sender_id"),
+            "receiver_id": msg.get("receiver_id"),
+            "text": msg.get("text"),
+            "image_url": msg.get("image_url"),
+            "is_read": msg.get("is_read", False),
+            "created_at": msg.get("created_at"),
+        } for msg in messages]
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
