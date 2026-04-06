@@ -15,6 +15,7 @@ import {
   MessagesPage,
   StoriesPage,
   SettingsPage,
+  RecommendationsPage,
 } from './pages'
 import { Sidebar, Navbar } from './components'
 import './index.css'
@@ -128,6 +129,15 @@ function App() {
           element={
             <ProtectedRoute>
               <StoriesPage />
+            </ProtectedRoute>
+          }
+        />
+        
+        <Route
+          path="/recommendations"
+          element={
+            <ProtectedRoute>
+              <RecommendationsPage />
             </ProtectedRoute>
           }
         />

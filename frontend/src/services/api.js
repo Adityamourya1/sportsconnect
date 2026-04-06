@@ -40,6 +40,10 @@ export const postService = {
 // Feed API calls
 export const feedService = {
   getPersonalizedFeed: (userId) => apiClient.get(`/feed/${userId}`),
+  getRecommendations: (userId) => apiClient.get(`/feed/${userId}/recommendations`),
+  getRecommendedUsers: (userId) => apiClient.get(`/feed/${userId}/recommended-users`),
+  likePost: (postId, userId) => apiClient.post(`/posts/${postId}/like/${userId}`),
+  unlikePost: (postId, userId) => apiClient.post(`/posts/${postId}/unlike/${userId}`),
 }
 
 // Explore API calls
@@ -55,6 +59,8 @@ export const exploreService = {
 // Leagues API calls
 export const leagueService = {
   getAllLeagues: () => apiClient.get('/leagues/'),
+  getRecommendedLeagues: (userId) =>
+    apiClient.get(`/leagues/${userId}/recommended`),
   followLeague: (leagueId, userId) =>
     apiClient.post(`/leagues/${leagueId}/follow/${userId}`),
   unfollowLeague: (leagueId, userId) =>

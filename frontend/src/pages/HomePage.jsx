@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { feedService, postService, notificationService } from '../services'
+import { feedService, postService, notificationService, userService } from '../services'
 import { PostCard, CreatePostModal, CommentModal } from '../components'
 import toast from 'react-hot-toast'
 
@@ -10,11 +10,22 @@ const HomePage = () => {
   const [commentModalOpen, setCommentModalOpen] = useState(false)
   const [selectedPostId, setSelectedPostId] = useState(null)
   const [likedPosts, setLikedPosts] = useState({})
+  const [userInterests, setUserInterests] = useState([])
   const userId = localStorage.getItem('user_id')
 
   useEffect(() => {
     loadFeed()
+    loadUserInterests()
   }, [])
+
+  const loadUserInterests = async () => {
+    try {
+      const response = await userService.getProfile(userId)
+      setUserInterests(response.data.interests || [])
+    } catch (error) {
+      console.error('Failed to load user interests:', error)
+    }
+  }
 
   const loadFeed = async () => {
     try {
@@ -112,6 +123,18 @@ const HomePage = () => {
       />
 
       <h2 className="text-3xl font-bold mb-6">Your Feed</h2>
+
+      {/* Interest-based Recommendations Banner */}
+      {userInterests.length > 0 && (
+        <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg">
+          <p className="text-sm font-semibold text-green-700">
+            ⭐ Personalized Feed Active
+          </p>
+          <p className="text-xs text-gray-700 mt-1">
+            Showing posts based on your interests: <span className="font-semibold">{userInterests.join(', ')}</span>
+          </p>
+        </div>
+      )}
 
       <button
         onClick={() => setIsModalOpen(true)}

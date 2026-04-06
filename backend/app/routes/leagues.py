@@ -149,3 +149,63 @@ async def get_league_posts(league_id: str, skip: int = 0, limit: int = 20):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
+
+@router.get("/{user_id}/recommended")
+async def get_recommended_leagues(user_id: str, limit: int = 10):
+    """Get recommended leagues based on user interests"""
+    db = get_database()
+    
+    try:
+        from app.services import RecommendationEngine
+        
+        # Get user
+        user = await db["users"].find_one({"_id": ObjectId(user_id)})
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        
+        user_interests = user.get("interests", [])
+        
+        if not user_interests:
+            # Return popular leagues if no interests
+            leagues = await db["leagues"].find({}).limit(limit).to_list(None)
+        else:
+            # Get all leagues
+            all_leagues = await db["leagues"].find({}).to_list(None)
+            
+            # Use recommendation engine to get interest-based leagues
+            rec_engine = RecommendationEngine()
+            recommended = await rec_engine.recommend_leagues_by_interests(
+                user_interests, all_leagues, top_n=limit
+            )
+            
+            leagues = [rec["league"] for rec in recommended]
+        
+        # Format response
+        formatted_leagues = []
+        for league in leagues:
+            formatted_leagues.append({
+                "id": str(league.get("_id", "")),
+                "name": league.get("name"),
+                "sport": league.get("sport"),
+                "description": league.get("description"),
+                "logo_url": league.get("logo_url"),
+                "followers_count": len(league.get("followers", [])),
+                "posts_count": len(league.get("posts", [])),
+                "is_following": user_id in league.get("followers", [])
+            })
+        
+        return formatted_leagues
+    
+    except ObjectId as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid user ID"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
