@@ -1,4 +1,4 @@
-# SportsNet - AI-Powered Sports Social Media Platform
+# SportsConnect - AI-Powered Sports Social Media Platform
 
 A full-stack Instagram-like sports social media application with AI-powered content generation and personalized recommendations.
 
