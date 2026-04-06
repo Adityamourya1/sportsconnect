@@ -39,7 +39,7 @@ const LoginPage = () => {
       {/* Left Side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-green-400 to-green-600 items-center justify-center">
         <div className="text-center text-white">
-          <h1 className="text-6xl font-bold mb-4">SportsNet</h1>
+          <h1 className="text-6xl font-bold mb-4">SportsConnect</h1>
           <p className="text-2xl mb-8">Connect with Sports Enthusiasts</p>
           <div className="space-y-4">
             <div className="flex items-center space-x-3">

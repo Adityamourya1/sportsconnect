@@ -6,7 +6,7 @@ const Sidebar = () => {
   return (
     <aside className="w-64 bg-gradient-to-b from-green-500 to-green-600 h-screen fixed left-0 top-0 shadow-lg">
       <div className="p-6">
-        <h1 className="text-3xl font-bold text-white mb-8">SportsNet</h1>
+        <h1 className="text-3xl font-bold text-white mb-8">SportsConnect</h1>
 
         <nav className="space-y-4">
           <Link

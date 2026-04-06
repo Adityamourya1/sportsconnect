@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     )
 
     # App
-    APP_NAME: str = "SportsNet"
+    APP_NAME: str = "SportsConnect"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = False
     ENVIRONMENT: str = "development"

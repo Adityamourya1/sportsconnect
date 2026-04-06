@@ -63,9 +63,9 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
-      <div className="ml-64 px-6 py-4 flex items-center justify-between">
-        <div className="flex-1 max-w-md" ref={searchRef}>
+    <nav className="bg-white shadow-md sticky top-0 z-50 left-64 right-0">
+      <div className="px-6 py-4 flex items-center justify-between">
+        <div className="flex-1 max-w-2xl" ref={searchRef}>
           <form onSubmit={handleSearch} className="relative">
             <div className="relative">
               <input
