@@ -38,17 +38,43 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup():
     """Initialize database connection and services on startup"""
-    await connect_to_mongo()
-    await RedisCache.connect()
-    logger.info(f"✓ {settings.APP_NAME} started in {settings.ENVIRONMENT} mode")
+    
+    # MongoDB connection
+    try:
+        await connect_to_mongo()
+        logger.info("✅ MongoDB connected")
+    except Exception as e:
+        logger.error(f"❌ MongoDB connection failed: {e}")
+
+    # Redis connection (OPTIONAL - won't crash if missing)
+    try:
+        await RedisCache.connect()
+        logger.info("✅ Redis connected")
+    except Exception as e:
+        logger.warning(f"⚠️ Redis not connected: {e}")
+
+    logger.info(f"🚀 {settings.APP_NAME} started in {settings.ENVIRONMENT} mode")
+
 
 # Shutdown event
 @app.on_event("shutdown")
 async def shutdown():
     """Close database connection and cache on shutdown"""
-    await close_mongo_connection()
-    await RedisCache.disconnect()
-    logger.info(f"✓ {settings.APP_NAME} shutdown completed")
+    
+    try:
+        await close_mongo_connection()
+        logger.info("✅ MongoDB disconnected")
+    except Exception as e:
+        logger.warning(f"⚠️ MongoDB disconnect issue: {e}")
+
+    try:
+        await RedisCache.disconnect()
+        logger.info("✅ Redis disconnected")
+    except Exception:
+        pass
+
+    logger.info(f"🛑 {settings.APP_NAME} shutdown completed")
+
 
 # Health check endpoint
 @app.get("/health")
@@ -61,6 +87,7 @@ async def health_check():
         "environment": settings.ENVIRONMENT,
     }
 
+
 # Root endpoint
 @app.get("/")
 async def root():
@@ -70,6 +97,7 @@ async def root():
         "version": settings.APP_VERSION,
         "documentation": "/docs",
     }
+
 
 # Include routers
 app.include_router(auth_router)
@@ -86,7 +114,8 @@ app.include_router(upload_router)
 app.include_router(websocket_router)
 app.include_router(stories_router)
 
-# Error handlers
+
+# Global Error Handler
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
     """Global exception handler"""
@@ -96,6 +125,8 @@ async def global_exception_handler(request, exc):
         content={"detail": "Internal server error"},
     )
 
+
+# Local run (for development)
 if __name__ == "__main__":
     import uvicorn
     
