@@ -66,7 +66,7 @@ const SignupPage = () => {
       {/* Left Side - Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-green-400 to-green-600 items-center justify-center">
         <div className="text-center text-white">
-          <h1 className="text-6xl font-bold mb-4">SportsNet</h1>
+          <h1 className="text-6xl font-bold mb-4">SportsConnect</h1>
           <p className="text-2xl mb-8">Connect with Sports Enthusiasts</p>
           <div className="space-y-4">
             <div className="flex items-center space-x-3">
@@ -88,7 +88,7 @@ const SignupPage = () => {
       {/* Right Side - Signup Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center bg-gray-50 p-6">
         <div className="w-full max-w-md">
-          <h2 className="text-4xl font-bold text-center mb-2">Join SportsNet</h2>
+          <h2 className="text-4xl font-bold text-center mb-2">Join SportsConnect</h2>
           <p className="text-gray-600 text-center mb-8">Create an account to get started</p>
 
           <form onSubmit={handleSignup} className="space-y-6">
