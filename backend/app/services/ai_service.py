@@ -82,7 +82,7 @@ class AIService:
         
         except Exception as e:
             logger.error(f"Hashtag generation error: {e}")
-            return ["sports", "sportsnet", "motivation", "passion", "athlete"]
+            return ["sports", "SportsConnect", "motivation", "passion", "athlete"]
     
     @staticmethod
     async def generate_image(prompt: str, sport: Optional[str] = None) -> str:
