@@ -62,7 +62,7 @@ const LoginPage = () => {
       <div className="w-full lg:w-1/2 flex items-center justify-center bg-gray-50 p-6">
         <div className="w-full max-w-md">
           <h2 className="text-4xl font-bold text-center mb-2">Welcome Back</h2>
-          <p className="text-gray-600 text-center mb-8">Sign in to your SportsNet account</p>
+          <p className="text-gray-600 text-center mb-8">Sign in to your SportsConnect account</p>
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
