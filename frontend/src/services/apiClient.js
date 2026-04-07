@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = 'http://localhost:8000/api'
+const API_BASE_URL = 'https://sportsconnect-backend.onrender.com'
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -18,7 +18,7 @@ apiClient.interceptors.request.use((config) => {
   return config
 })
 
-// Handle token refresh
+// Handle token expiration
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
