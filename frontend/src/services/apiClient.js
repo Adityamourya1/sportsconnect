@@ -1,7 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = 'https://sportsconnect-backend.onrender.com'
-
+const API_BASE_URL = 'https://sportsconnect-backend.onrender.com/api'
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
